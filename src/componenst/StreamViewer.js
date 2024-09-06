@@ -106,11 +106,16 @@ const StreamViewer = () => {
 
     // Create a new Peer instance
     const newPeer = new Peer(undefined, {
-      host: 'streaming-backend-xpvs.onrender.com',
-      port: 443,
-      path: '/',
-      secure: true
-    });
+  host: 'streaming-backend-xpvs.onrender.com', // Backend host
+  port: 443, // Ensure this matches HTTPS port
+  path: '/peerjs', // This should match the PeerServer path in the backend
+  secure: true, // Use secure connection (HTTPS)
+  config: {
+    'iceServers': [{ 'urls': 'stun:stun.l.google.com:19302' }]
+  },
+  fetchOptions: { mode: 'cors' } // Enable CORS for PeerJS fetch requests
+});
+
 
     setPeer(newPeer);
 
