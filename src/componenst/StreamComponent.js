@@ -27,8 +27,8 @@ const StreamComponent = () => {
     };
 
     const newPeer = new Peer(undefined, {
-      host: 'localhost',
-      port: 9000,
+      host: 'streaming-backend-xpvs.onrender.com',
+      port: 443,
       path: '/'
     });
 
