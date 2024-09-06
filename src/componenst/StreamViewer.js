@@ -1,14 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Peer from 'peerjs';
 
-const signalingServerUrl = 'ws://localhost:8080';
-const mlServerUrl = 'ws://192.168.70.171:3000'; // ML server URL
+const signalingServerUrl = 'wss://streaming-backend-xpvs.onrender.com';
+const mlServerUrl = 'ws://192.168.113.171:3000'; // ML server URL
 
 const StreamViewer = () => {
   const [peer, setPeer] = useState(null);
   const [peerId, setPeerId] = useState('');
   const [streams, setStreams] = useState([]);
-  const [processedFrames, setProcessedFrames] = useState({}); // Store processed frames by stream ID
   const ws = useRef(null); // WebSocket connection to signaling server
   const mlSocket = useRef(null); // WebSocket connection to ML server
   const streamRefs = useRef(new Map()); // Map to track streams and their IDs
@@ -37,25 +36,23 @@ const StreamViewer = () => {
 
     mlSocket.current.onmessage = (event) => {
       console.log('[ML Server] Message received:', event.data);
-      try {
-        const data = JSON.parse(event.data);
-        console.log('[ML Server] Parsed data:', data);
 
-        const { type, frame, streamId } = data;
+      // Log the raw JSON data
+      try {
+        const jsonResponse = JSON.parse(event.data);
+        console.log('[ML Server] JSON response:', jsonResponse);
+
+        // You can log specific fields if needed, for example:
+        const { type, result, streamId } = jsonResponse;
 
         if (type === 'processed_frame') {
-          console.log('[ML Server] Processed frame received for stream ID:', streamId);
-
-          // Update state with the latest processed frame for the given stream ID
-          setProcessedFrames(prevFrames => ({
-            ...prevFrames,
-            [streamId]: frame
-          }));
+          console.log(`[ML Server] Processed frame received for stream ID: ${streamId}`);
+          console.log('[ML Server] ML result:', result); // Log the result (can be any data you expect in the JSON response)
         } else {
           console.warn('[ML Server] Unknown message type:', type);
         }
       } catch (e) {
-        console.error('[ML Server] Error processing message:', e);
+        console.error('[ML Server] Error parsing JSON response:', e);
       }
     };
   };
@@ -109,8 +106,8 @@ const StreamViewer = () => {
 
     // Create a new Peer instance
     const newPeer = new Peer(undefined, {
-      host: 'localhost',
-      port: 9000,
+      host: 'streaming-backend-xpvs.onrender.com',
+      port: 443,
       path: '/'
     });
 
@@ -214,17 +211,6 @@ const StreamViewer = () => {
           <canvas
             ref={el => canvasRefs.current.set(stream.id, el)} // Assign ref to canvas elements
             style={{ display: 'none' }} // Hide canvas elements
-          />
-        </div>
-      ))}
-      {/* Display the latest processed frames for all streams */}
-      {Object.entries(processedFrames).map(([streamId, frame]) => (
-        <div key={streamId} style={{ marginBottom: '10px' }}>
-          <h4>Processed Frame for Stream ID: {streamId}</h4>
-          <img
-            src={frame} // Use Base64 data directly
-            alt={`Processed frame for stream ${streamId}`}
-            style={{ border: '2px solid red', maxWidth: '100%' }}
           />
         </div>
       ))}

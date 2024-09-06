@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Peer from 'peerjs';
 
-const signalingServerUrl = 'ws://localhost:8080';
+const signalingServerUrl = 'wss://streaming-backend-xpvs.onrender.com';
+
 
 const StreamComponent = () => {
   const [peer, setPeer] = useState(null);
