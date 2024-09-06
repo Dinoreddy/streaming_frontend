@@ -108,7 +108,7 @@ const StreamViewer = () => {
     const newPeer = new Peer(undefined, {
       host: 'streaming-backend-xpvs.onrender.com',
       port: 443,
-      path: '/'
+      path: '/peerjs'
     });
 
     setPeer(newPeer);
